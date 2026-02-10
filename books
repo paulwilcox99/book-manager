@@ -1,0 +1,7 @@
+#!/bin/bash
+# Book Tracker helper script
+# Activates virtual environment and runs the book tracker
+
+cd "$(dirname "$0")"
+source venv/bin/activate
+python book_tracker.py "$@"

@@ -1,0 +1,26 @@
+I want to create a tool to collect information on all of the books I have read or I want to read.  Please read the description below ask me any clarifying questions and create a plan for me to review.
+
+The application should be written in python, I am running on Linux Ubuntu 24.04.3 LTS on a Dell XPS 15
+
+The application will take as input a picture of the front or spibne of books that should have the titles and author for the book.  
+
+The application should use a standard LLM model to scan the picture and extract the title and author (openai, google, anthropic)
+
+The pictures will be stored in this directory in a directory called books_read for books that I have read or books_to_read for books I want to read in the future
+
+The application should add these books to a database.  Basic information it should enter would be book name, author name(s) and if I have read this book (yes or no).  Applications should check that the books are not already in the database and it should print a message whenever it adds a new book or updates information about the book.
+
+The application should also have the ability for me to call it from command line with the name of the book and author and if I read it in case a picture is not available.
+
+The application should also have the ability to gather more information about the book by calling a LLM such as openai, google gemini, claude and getting information that is then added to the database.  Information I would like it to gather includes:
+Date of publication
+ISBN number
+Is it fiction or non-fiction
+Brief synopsys of the book
+What are some of the themes of the book
+Who are the main characters of the book
+few famous quotes from the book
+What awards did the book win
+Categories the book may fall into such as:  Jazz biography, classic fiction, technical, religious, management, travel, self improvement, historical, biographies, etc...
+
+If not present the application should ask me through command line if I have read the book and my rating of the book on a scale of 1 to 10 with 10 being best.

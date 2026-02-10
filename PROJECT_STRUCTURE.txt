@@ -1,0 +1,158 @@
+Book Tracker Application - Project Structure
+=============================================
+
+/home/paul/code/books/
+│
+├── 📚 CORE APPLICATION FILES
+│   ├── book_tracker.py          (16KB)  Main CLI application with all commands
+│   ├── database.py              (7.1KB) SQLite database layer
+│   ├── llm_providers.py         (18KB)  Multi-provider LLM integration
+│   ├── book_manager.py          (7.1KB) Business logic and CRUD operations
+│   └── image_processor.py       (1.5KB) Image scanning and processing
+│
+├── ⚙️  CONFIGURATION
+│   ├── config.yaml              (626B)  Application settings and API keys
+│   └── requirements.txt         (122B)  Python dependencies
+│
+├── 📖 DOCUMENTATION
+│   ├── START_HERE.md            (4.1KB) 👈 Start with this file!
+│   ├── QUICKSTART.md            (4.6KB) Common commands reference
+│   ├── README.md                (6.2KB) Complete user documentation
+│   ├── SETUP.md                 (3.9KB) Installation and setup guide
+│   ├── IMPLEMENTATION_SUMMARY.md (7.8KB) Technical implementation details
+│   └── PROJECT_STRUCTURE.txt    (this file)
+│
+├── 🧪 TESTING
+│   └── test_setup.py            (5.6KB) Setup verification script
+│
+├── 📁 DATA DIRECTORIES
+│   ├── books_read/              Images of books already read
+│   │   └── PXL_20260209_200948189.MP (1).jpg
+│   ├── books_to_read/           Images of books to read
+│   │   └── PXL_20260209_220847974.MP.jpg
+│   └── books.db                 SQLite database (created on first run)
+│
+└── 🔧 PROJECT FILES
+    ├── .gitignore               Git ignore rules
+    └── prompt.txt               Original project prompt
+
+
+QUICK START
+===========
+
+1. Install:     pip3 install -r requirements.txt
+2. Configure:   Edit config.yaml with your API key
+3. Verify:      python3 test_setup.py
+4. Run:         python3 book_tracker.py scan
+
+
+COMMANDS OVERVIEW
+=================
+
+Scanning:
+  scan                  - Process images in directories
+  
+Entry:
+  add                   - Add book manually
+  
+Viewing:
+  list                  - List all books
+  show                  - Show detailed book info
+  search                - Search with filters
+  
+Management:
+  update                - Update book details
+  enrich                - Fetch/refresh metadata
+  
+Categories:
+  categories list       - Show predefined categories
+  categories add        - Add new category
+  categories remove     - Remove category
+  
+Export:
+  export                - Export to CSV or JSON
+
+
+ARCHITECTURE
+============
+
+┌─────────────────┐
+│   book_tracker  │  CLI Interface (Click)
+└────────┬────────┘
+         │
+    ┌────┴────┐
+    │         │
+┌───▼──────┐  │
+│   book   │  │  Business Logic
+│  manager │  │
+└───┬──────┘  │
+    │         │
+┌───▼──────┐ ┌▼──────────┐
+│ database │ │    llm    │  Data & API Layers
+│          │ │ providers │
+└──────────┘ └───┬───────┘
+                 │
+         ┌───────┴────────┐
+         │                │
+    ┌────▼────┐     ┌────▼────┐
+    │  image  │     │  OpenAI │  Support Modules
+    │processor│     │Anthropic│
+    └─────────┘     │ Google  │
+                    └─────────┘
+
+
+DATABASE SCHEMA
+===============
+
+books
+  ├── id (PK)
+  ├── title, authors
+  ├── read_status, rating
+  ├── date_added, last_updated
+  ├── personal_notes
+  ├── publication_date, isbn
+  ├── fiction_nonfiction, synopsis
+  ├── themes, main_characters
+  ├── quotes, awards
+  ├── llm_categories
+  ├── user_categories
+  └── source_image_path
+
+processed_images
+  ├── id (PK)
+  ├── image_path (UNIQUE)
+  ├── processed_date
+  └── books_extracted
+
+
+FEATURES
+========
+
+✅ Image-based book extraction
+✅ Manual book entry
+✅ Automatic metadata enrichment
+✅ Smart refresh (only missing fields)
+✅ Force refresh (all fields)
+✅ Duplicate detection
+✅ Multi-criteria search
+✅ User category management
+✅ Export to CSV/JSON
+✅ Three LLM providers
+✅ Rating system
+✅ Personal notes
+
+
+NEXT STEPS
+==========
+
+1. Read START_HERE.md for quick setup
+2. Install dependencies: pip3 install -r requirements.txt
+3. Configure API key in config.yaml
+4. Run test_setup.py to verify
+5. Process existing images: python3 book_tracker.py scan
+6. Explore commands: python3 book_tracker.py --help
+
+
+For detailed documentation, see README.md
+For common commands, see QUICKSTART.md
+For setup help, see SETUP.md

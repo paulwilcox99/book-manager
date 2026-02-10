@@ -1,0 +1,47 @@
+# Database
+*.db
+*.db-journal
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+
+# Virtual environment
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Exports
+*.csv
+*.json
+
+# Config with API keys (keep this private!)
+config.yaml
+
+# Images (if you don't want to commit them)
+books_read/*.jpg
+books_read/*.jpeg
+books_read/*.png
+books_to_read/*.jpg
+books_to_read/*.jpeg
+books_to_read/*.png
+
+# Keep directories but not contents
+!books_read/.gitkeep
+!books_to_read/.gitkeep
