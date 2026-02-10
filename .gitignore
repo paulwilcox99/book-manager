@@ -45,3 +45,7 @@ books_to_read/*.png
 # Keep directories but not contents
 !books_read/.gitkeep
 !books_to_read/.gitkeep
+
+# Generated site
+site/
+.site_state.json
