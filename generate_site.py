@@ -365,12 +365,17 @@ def generate_book_page(book, output_dir):
     if book['synopsis']:
         html += f'<h2>Synopsis</h2><p class="synopsis">{escape(book["synopsis"])}</p>'
     
-    if book['themes_list']:
-        html += '<h2>Themes</h2><p>'
-        for theme in book['themes_list']:
-            theme_slug = slugify(theme)
-            html += f'<a href="../themes/{theme_slug}.html" class="tag">{escape(theme)}</a>'
-        html += '</p>'
+    if book.get('major_theme') or book['themes_list']:
+        html += '<h2>Themes</h2>'
+        if book.get('major_theme'):
+            major_slug = slugify(book['major_theme'])
+            html += f'<p style="margin-bottom: 0.75rem;"><strong style="color: var(--text-muted); font-family: -apple-system, BlinkMacSystemFont, sans-serif; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em;">Major Theme:</strong> <a href="../major-themes/{major_slug}.html" class="tag" style="background: var(--accent); color: white; border-color: var(--accent);">{escape(book["major_theme"])}</a></p>'
+        if book['themes_list']:
+            html += '<p>'
+            for theme in book['themes_list']:
+                theme_slug = slugify(theme)
+                html += f'<a href="../themes/{theme_slug}.html" class="tag">{escape(theme)}</a>'
+            html += '</p>'
     
     if book['main_characters_list']:
         html += '<h2>Main Characters</h2><p>'
@@ -439,9 +444,13 @@ def generate_group_page(title, books, output_path, breadcrumbs):
         
         html += f'''<div class="book-card">
             <h3><a href="../books/{slug}.html">{escape(book['title'])}</a></h3>
-            <p class="author">{escape(authors)}</p>
-            <p class="meta">'''
+            <p class="author">{escape(authors)}</p>'''
         
+        if book.get('major_theme'):
+            major_slug = slugify(book['major_theme'])
+            html += f'<p style="margin: 0.5rem 0;"><a href="../major-themes/{major_slug}.html" class="tag" style="font-size: 0.75rem;">{escape(book["major_theme"])}</a></p>'
+        
+        html += '<p class="meta">'
         status_class = book['read_status']
         status_text = "Read" if status_class == "read" else "To Read"
         html += f'<span class="status {status_class}">{status_text}</span>'
@@ -479,9 +488,13 @@ def generate_books_index(books, output_dir):
         
         html += f'''<div class="book-card">
             <h3><a href="books/{slug}.html">{escape(book['title'])}</a></h3>
-            <p class="author">{escape(authors)}</p>
-            <p class="meta">'''
+            <p class="author">{escape(authors)}</p>'''
         
+        if book.get('major_theme'):
+            major_slug = slugify(book['major_theme'])
+            html += f'<p style="margin: 0.5rem 0;"><a href="major-themes/{major_slug}.html" class="tag" style="font-size: 0.75rem;">{escape(book["major_theme"])}</a></p>'
+        
+        html += '<p class="meta">'
         status_class = book['read_status']
         status_text = "Read" if status_class == "read" else "To Read"
         html += f'<span class="status {status_class}">{status_text}</span>'
@@ -498,7 +511,7 @@ def generate_books_index(books, output_dir):
         f.write(html)
 
 
-def generate_index(books, authors_count, themes_count, categories_count, output_dir):
+def generate_index(books, authors_count, themes_count, major_themes_count, categories_count, output_dir):
     """Generate main index page."""
     html = html_header("Paul's Library")
     
@@ -521,6 +534,7 @@ def generate_index(books, authors_count, themes_count, categories_count, output_
         <ul>
             <li><a href="books.html">All Books ({len(books)})</a></li>
             <li><a href="authors.html">By Author ({authors_count})</a></li>
+            <li><a href="major-themes.html">By Major Theme ({major_themes_count})</a></li>
             <li><a href="themes.html">By Theme ({themes_count})</a></li>
             <li><a href="categories.html">By Category ({categories_count})</a></li>
         </ul>
@@ -580,6 +594,7 @@ def generate_site(force=False):
     os.makedirs(os.path.join(OUTPUT_DIR, "books"), exist_ok=True)
     os.makedirs(os.path.join(OUTPUT_DIR, "authors"), exist_ok=True)
     os.makedirs(os.path.join(OUTPUT_DIR, "themes"), exist_ok=True)
+    os.makedirs(os.path.join(OUTPUT_DIR, "major-themes"), exist_ok=True)
     os.makedirs(os.path.join(OUTPUT_DIR, "categories"), exist_ok=True)
     
     # Get all books
@@ -635,6 +650,25 @@ def generate_site(force=False):
                       f"{len(themes_index)} themes across your books")
     print(f"Generated {len(themes_index)} theme pages")
     
+    # Generate major theme pages
+    major_themes_index = defaultdict(list)
+    for book in books:
+        if book.get('major_theme'):
+            major_themes_index[book['major_theme']].append(book)
+    
+    major_theme_items = []
+    for major_theme, mt_books in major_themes_index.items():
+        slug = slugify(major_theme)
+        filepath = os.path.join(OUTPUT_DIR, "major-themes", f"{slug}.html")
+        generate_group_page(major_theme, mt_books, filepath, [("Major Themes", "major-themes.html"), (major_theme, None)])
+        major_theme_items.append((major_theme, f"major-themes/{slug}.html", len(mt_books)))
+    
+    generate_list_page("Major Themes", major_theme_items,
+                      os.path.join(OUTPUT_DIR, "major-themes.html"),
+                      [("Major Themes", None)],
+                      f"{len(major_themes_index)} major theme categories")
+    print(f"Generated {len(major_themes_index)} major theme pages")
+    
     # Generate category pages
     category_items = []
     for cat, cat_books in categories_index.items():
@@ -653,7 +687,7 @@ def generate_site(force=False):
     generate_books_index(books, OUTPUT_DIR)
     
     # Generate main index
-    generate_index(books, len(authors_index), len(themes_index), len(categories_index), OUTPUT_DIR)
+    generate_index(books, len(authors_index), len(themes_index), len(major_themes_index), len(categories_index), OUTPUT_DIR)
     
     # Save state
     save_state({'db_hash': current_hash, 'generated_at': datetime.now().isoformat()})
