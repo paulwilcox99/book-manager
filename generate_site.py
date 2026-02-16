@@ -82,14 +82,14 @@ def get_all_books(db_path):
 
 
 # HTML Templates
-def html_header(title, breadcrumbs=None):
-    """Generate HTML header."""
+def html_header(title, breadcrumbs=None, base=""):
+    """Generate HTML header. base should be '../' for pages in subdirectories."""
     bc_html = ""
     if breadcrumbs:
-        bc_parts = ['<a href="index.html">Home</a>']
+        bc_parts = [f'<a href="{base}index.html">Home</a>']
         for name, link in breadcrumbs:
             if link:
-                bc_parts.append(f'<a href="{link}">{escape(name)}</a>')
+                bc_parts.append(f'<a href="{base}{link}">{escape(name)}</a>')
             else:
                 bc_parts.append(escape(name))
         bc_html = f'<nav class="breadcrumbs">{" → ".join(bc_parts)}</nav>'
@@ -99,7 +99,7 @@ def html_header(title, breadcrumbs=None):
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{escape(title)} - Book Collection</title>
+    <title>{escape(title)} - Paul's Library</title>
     <style>
         :root {{
             --bg: #faf8f5;
@@ -122,6 +122,18 @@ def html_header(title, breadcrumbs=None):
             padding: 2.5rem;
             max-width: 960px;
             margin: 0 auto;
+        }}
+        .back-to-collections {{
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-size: 0.85rem;
+            margin-bottom: 1.5rem;
+        }}
+        .back-to-collections a {{
+            color: var(--text-muted);
+            text-decoration: none;
+        }}
+        .back-to-collections a:hover {{
+            color: var(--link);
         }}
         a {{ color: var(--link); text-decoration: underline; text-decoration-color: var(--border); text-underline-offset: 2px; }}
         a:hover {{ color: var(--link-hover); text-decoration-color: var(--link-hover); }}
@@ -227,6 +239,7 @@ def html_header(title, breadcrumbs=None):
     </style>
 </head>
 <body>
+<div class="back-to-collections"><a href="https://pauls-collections.vercel.app">← All Collections</a></div>
 {bc_html}
 <h1>{escape(title)}</h1>
 '''
@@ -251,7 +264,7 @@ def generate_book_page(book, output_dir):
     
     authors = ", ".join(book['authors_list']) if book['authors_list'] else book['authors']
     
-    html = html_header(book['title'], [("Books", "books.html"), (book['title'], None)])
+    html = html_header(book['title'], [("Books", "books.html"), (book['title'], None)], base="../")
     
     html += '<div class="card">'
     html += f'<p class="author">by {escape(authors)}</p>'
@@ -343,8 +356,8 @@ def generate_list_page(title, items, output_path, breadcrumbs, intro=""):
 
 
 def generate_group_page(title, books, output_path, breadcrumbs):
-    """Generate a page showing a group of books."""
-    html = html_header(title, breadcrumbs)
+    """Generate a page showing a group of books (in subdirectories)."""
+    html = html_header(title, breadcrumbs, base="../")
     
     html += f'<p style="margin-bottom: 1.5rem; color: var(--text-muted);">{len(books)} book(s)</p>'
     
@@ -416,7 +429,7 @@ def generate_books_index(books, output_dir):
 
 def generate_index(books, authors_count, themes_count, categories_count, output_dir):
     """Generate main index page."""
-    html = html_header("Book Collection")
+    html = html_header("Paul's Library")
     
     read_count = sum(1 for b in books if b['read_status'] == 'read')
     to_read_count = len(books) - read_count
