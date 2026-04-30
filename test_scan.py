@@ -64,7 +64,7 @@ def main():
     env["DATABASE_PATH"] = str(TEST_DB)
 
     result = subprocess.run(
-        [sys.executable, "book_tracker.py", "scan"],
+        [sys.executable, "book_tracker.py", "scan", "--no-prompt"],
         env=env,
         cwd=SCRIPT_DIR,
     )

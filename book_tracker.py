@@ -87,7 +87,8 @@ def cli():
 @cli.command()
 @click.option('--directory', type=click.Choice(['books_read', 'books_to_read', 'all']), default='all',
               help='Directory to scan for images')
-def scan(directory):
+@click.option('--no-prompt', is_flag=True, help='Skip interactive prompts, use defaults (useful for automated runs)')
+def scan(directory, no_prompt):
     """Scan directories for book images and extract information."""
     config, db, llm_provider, book_manager = get_managers()
     image_processor = ImageProcessor(config, db)
@@ -152,7 +153,7 @@ def scan(directory):
                         books_added += 1
 
                         # Prompt for rating if read
-                        if read_status == 'read':
+                        if read_status == 'read' and not no_prompt:
                             rating = click.prompt("    Rate this book (1-10)", type=int, default=0)
                             if rating > 0:
                                 book_manager.update_book(book_id, {'rating': rating})

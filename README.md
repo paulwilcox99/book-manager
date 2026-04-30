@@ -59,6 +59,11 @@ python book_tracker.py scan --directory books_read
 python book_tracker.py scan --directory books_to_read
 ```
 
+Use `--no-prompt` to skip interactive rating prompts and accept defaults — useful for scripted or automated runs:
+```bash
+python book_tracker.py scan --no-prompt
+```
+
 ### Manual Entry
 
 Add a book manually:
