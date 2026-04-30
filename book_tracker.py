@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
+import os
 import click
-import yaml
 import json
 import csv
 from pathlib import Path
 from typing import Optional
+from dotenv import load_dotenv, set_key
 
 from database import Database
 from llm_providers import get_provider
@@ -13,20 +14,49 @@ from book_manager import BookManager
 
 
 def load_config():
-    """Load configuration from config.yaml."""
-    config_path = Path(__file__).parent / "config.yaml"
-    if not config_path.exists():
-        raise FileNotFoundError(f"Configuration file not found: {config_path}")
+    """Load configuration from .env."""
+    env_path = Path(__file__).parent / ".env"
+    if not env_path.exists():
+        raise FileNotFoundError(f"Configuration file not found: {env_path}")
 
-    with open(config_path, 'r') as f:
-        return yaml.safe_load(f)
+    load_dotenv(env_path)
+
+    image_extensions = [e.strip() for e in os.getenv('IMAGE_EXTENSIONS', '.jpg,.jpeg,.png').split(',')]
+    user_categories_raw = os.getenv('USER_CATEGORIES', '')
+    user_categories = [c.strip() for c in user_categories_raw.split(',') if c.strip()]
+
+    return {
+        'llm': {
+            'provider': os.getenv('LLM_PROVIDER', 'openai'),
+            'openai_api_key': os.getenv('OPENAI_API_KEY', 'your-openai-api-key-here'),
+            'anthropic_api_key': os.getenv('ANTHROPIC_API_KEY', 'your-anthropic-api-key-here'),
+            'google_api_key': os.getenv('GOOGLE_API_KEY', 'your-google-api-key-here'),
+            'model': {
+                'openai': os.getenv('OPENAI_MODEL', 'gpt-4o'),
+                'anthropic': os.getenv('ANTHROPIC_MODEL', 'claude-3-5-sonnet-20241022'),
+                'google': os.getenv('GOOGLE_MODEL', 'gemini-2.0-flash-exp'),
+            }
+        },
+        'database': {
+            'path': os.getenv('DATABASE_PATH', 'books.db'),
+        },
+        'directories': {
+            'books_read': os.getenv('DIR_BOOKS_READ', 'books_read'),
+            'books_to_read': os.getenv('DIR_BOOKS_TO_READ', 'books_to_read'),
+        },
+        'settings': {
+            'auto_enrich': os.getenv('AUTO_ENRICH', 'true').lower() == 'true',
+            'image_extensions': image_extensions,
+            'user_categories': user_categories,
+        }
+    }
 
 
 def save_config(config):
-    """Save configuration to config.yaml."""
-    config_path = Path(__file__).parent / "config.yaml"
-    with open(config_path, 'w') as f:
-        yaml.dump(config, f, default_flow_style=False, sort_keys=False)
+    """Persist mutable config values back to .env."""
+    env_path = str(Path(__file__).parent / ".env")
+    user_categories = config['settings'].get('user_categories', [])
+    set_key(env_path, 'USER_CATEGORIES', ','.join(user_categories))
 
 
 def get_managers():
@@ -38,7 +68,7 @@ def get_managers():
     api_key_field = f"{provider_name}_api_key"
 
     if config['llm'][api_key_field] == f"your-{provider_name}-api-key-here":
-        click.echo(f"Error: Please configure your {provider_name.upper()} API key in config.yaml", err=True)
+        click.echo(f"Error: Please configure your {provider_name.upper()} API key in .env", err=True)
         raise click.Abort()
 
     db = Database(config['database']['path'])

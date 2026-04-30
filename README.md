@@ -16,23 +16,33 @@ A CLI application for tracking your reading list with AI-powered metadata extrac
 
 1. Clone or download this repository
 
-2. Install dependencies:
+2. Create and activate a virtual environment:
+```bash
+python3 -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
+```
+
+3. Install dependencies:
 ```bash
 pip install -r requirements.txt
 ```
 
-3. Configure your API key in `config.yaml`:
-```yaml
-llm:
-  provider: "openai"  # or "anthropic" or "google"
-  openai_api_key: "your-api-key-here"
-  # ... other settings
+4. Configure your API key — copy the example and edit it:
+```bash
+cp .env.example .env
+# Edit .env and replace the placeholder with your actual API key
 ```
 
-4. Create directories for your book images:
+5. Create directories for your book images:
 ```bash
 mkdir books_read books_to_read
 ```
+
+6. Run the test scan to verify everything is working:
+```bash
+python test_scan.py
+```
+This copies sample images from `test_data/` through the full scan pipeline (image recognition → metadata enrichment → database storage) using a temporary database, then cleans up. If it completes successfully you're ready to start adding your own books.
 
 ## Usage
 

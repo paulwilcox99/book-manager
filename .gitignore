@@ -32,7 +32,7 @@ Thumbs.db
 *.json
 
 # Config with API keys (keep this private!)
-config.yaml
+.env
 
 # Images (if you don't want to commit them)
 books_read/*.jpg
